@@ -34,7 +34,6 @@ public class UserApplication {
 
     public UserApplication(int port) throws Exception {
         System.out.println("UserManager on port "+port);
-        Class.forName("org.mariadb.jdbc.Driver");
         Properties properties = new Properties();
         try (InputStream in = Helper.class.getResourceAsStream("server.properties")) {
             properties.load(in);
