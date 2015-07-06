@@ -1,6 +1,8 @@
 package dk.trustworks.usermanager.persistence;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import dk.trustworks.framework.persistence.GenericRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -9,6 +11,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by hans on 17/03/15.
@@ -17,18 +21,40 @@ public class UserRepository extends GenericRepository {
 
     private static final Logger log = LogManager.getLogger(UserRepository.class);
 
+    Cache<String, List<Map<String, Object>>> activeUsersCache = CacheBuilder.newBuilder().maximumSize(100).build();
+
     public UserRepository() {
         super();
     }
 
     public List<Map<String, Object>> findByActiveTrue() {
         log.debug("UserRepository.findByActiveTrue");
+        try {
+            return activeUsersCache.get("allActive", new Callable<List<Map<String, Object>>>() {
+                @Override
+                public List<Map<String, Object>> call() {
+                    System.out.println("activeUsersCache.size() = " + activeUsersCache.size());
+                    try (org.sql2o.Connection con = database.open()) {
+                        return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user WHERE active = TRUE").executeAndFetchTable().asList());
+                    } catch (Exception e) {
+                        log.error("LOG00720:", e);
+                    }
+                    //return doThingsTheHardWay(key);
+                    return new ArrayList<>();
+                }
+            });
+        } catch (ExecutionException e) {
+            log.error("LOG00860:", e);
+            throw new RuntimeException(e);
+        }
+        /*
         try (org.sql2o.Connection con = database.open()) {
             return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user WHERE active = TRUE").executeAndFetchTable().asList());
         } catch (Exception e) {
             log.error("LOG00720:", e);
         }
-        return new ArrayList<>();
+        */
+
         /*
         List<Map<String, Object>> result = new ArrayList<>();
         try {
