@@ -33,7 +33,6 @@ public class UserRepository extends GenericRepository {
             return activeUsersCache.get("allActive", new Callable<List<Map<String, Object>>>() {
                 @Override
                 public List<Map<String, Object>> call() {
-                    System.out.println("activeUsersCache.size() = " + activeUsersCache.size());
                     try (org.sql2o.Connection con = database.open()) {
                         return getEntitiesFromMapSet(con.createQuery("SELECT * FROM user WHERE active = TRUE").executeAndFetchTable().asList());
                     } catch (Exception e) {

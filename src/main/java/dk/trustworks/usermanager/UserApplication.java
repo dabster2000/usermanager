@@ -1,11 +1,15 @@
 package dk.trustworks.usermanager;
 
 import com.google.common.net.MediaType;
+import com.vaadin.server.VaadinServlet;
 import dk.trustworks.framework.persistence.Helper;
 import dk.trustworks.usermanager.handlers.UserHandler;
 import io.undertow.Handlers;
 import io.undertow.Undertow;
 import io.undertow.UndertowOptions;
+import io.undertow.servlet.Servlets;
+import io.undertow.servlet.api.DeploymentInfo;
+import io.undertow.servlet.api.DeploymentManager;
 import io.undertow.util.Headers;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
@@ -39,6 +43,19 @@ public class UserApplication {
             properties.load(in);
         }
 
+        DeploymentInfo servletBuilder = Servlets.deployment()
+                .setClassLoader(UserApplication.class.getClassLoader())
+                .setContextPath("/myapp")
+                .setDeploymentName("test.war")
+                .addServlets(
+                        Servlets.servlet("myservlet", VaadinServlet.class)
+                                .addInitParam("UI", "dk.trustworks.usermanager.web.UserListUI")
+                                .addMapping("/*"));
+
+        DeploymentManager manager = Servlets.defaultContainer().addDeployment(servletBuilder);
+        manager.deploy();
+        //PathHandler path = Handlers.path(Handlers.redirect("/myapp")).addPrefixPath("/myapp", manager.start());
+
         Undertow.builder()
                 .addHttpListener(port, properties.getProperty("web.host"))
                 .setBufferSize(1024 * 16)
@@ -46,7 +63,7 @@ public class UserApplication {
                 .setSocketOption(Options.BACKLOG, 10000)
                 .setServerOption(UndertowOptions.ALWAYS_SET_KEEP_ALIVE, false) //don't send a keep-alive header for HTTP/1.1 requests, as it is not required
                 .setServerOption(UndertowOptions.ALWAYS_SET_DATE, true)
-                .setHandler(Handlers.header(Handlers.path().addPrefixPath("/api/users", new UserHandler()), Headers.SERVER_STRING, "U-tow"))
+                .setHandler(Handlers.header(Handlers.path().addPrefixPath("/api/users", new UserHandler()).addPrefixPath("/myapp", manager.start()), Headers.SERVER_STRING, "U-tow"))
                 .setWorkerThreads(200)
                 .build()
                 .start();

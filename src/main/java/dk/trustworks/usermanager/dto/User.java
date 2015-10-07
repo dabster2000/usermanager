@@ -9,21 +9,23 @@ public class User {
 
     private String UUID;
 
-    private String username;
+    private String username = "";
 
-    private String password;
+    private String password = "";
 
-    private String firstname;
+    private String firstname = "";
 
-    private String lastname;
+    private String lastname = "";
 
-    private String email;
+    private String email = "";
 
     private Date created;
 
     private boolean active = true;
 
     public User() {
+        UUID = java.util.UUID.randomUUID().toString();
+        created = new Date();
     }
 
     public User(String username, String password, String firstname, String lastname, String email) {

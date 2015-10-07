@@ -78,13 +78,51 @@
             <artifactId>sql2o</artifactId>
             <version>1.5.4</version>
         </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-server</artifactId>
+            <version>${vaadin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-client-compiled</artifactId>
+            <version>${vaadin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin</groupId>
+            <artifactId>vaadin-themes</artifactId>
+            <version>${vaadin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-beanutils</groupId>
+            <artifactId>commons-beanutils</artifactId>
+            <version>1.9.2</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
+
+    <repositories>
+        <!-- Essential Vaadin artifacts are in maven central, but maven.vaadin.com
+            contains a huge set of additional libraries. See vaadin.com/directory -->
+        <repository>
+            <id>vaadin-addons</id>
+            <url>http://maven.vaadin.com/vaadin-addons</url>
+        </repository>
+    </repositories>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <start-class>dk.trustworks.usermanager.UserApplication</start-class>
         <java.version>1.8</java.version>
-        <jackson.version>2.4.4</jackson.version>
+        <jackson.version>2.4.5</jackson.version>
+        <vaadin.version>7.4.3</vaadin.version>
+        <vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
     </properties>
 
     <profiles>
